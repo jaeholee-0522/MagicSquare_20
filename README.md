@@ -183,15 +183,36 @@ RED 사이클 시작 전 아래 **11항목**을 확인한다.
 - [x] **6.** ECB 의존 방향 `boundary → control → entity` 준수
 - [x] **7.** §6 Tracking Board — 필수 Scenario ↔ RED Test ID 매핑 완료
 - [x] **8.** `tests/` · `src/` 레이어 병렬 구조 (`boundary`, `control`, `entity`) 준비
-- [ ] **9.** `pyproject.toml` — **미작성** (GREEN 단계에서 pytest·coverage gate 추가 예정)
-- [x] **10.** Open Questions **DN-01~03** 인지 (envelope, Control 필수 여부, both-fail fixture)
+- [x] **9.** `pyproject.toml` — pytest·coverage gate (≥80%) 작성 완료
+- [x] **10.** Open Questions **DN-01~03** 확정 (envelope, Control, G3 both-fail)
 - [x] **11.** Full RED 대상 작성 완료 — R0~R6 배치 (`test_ac_fr_01_01_*`, `test_u_*`, `test_d_*`) → pytest **25 failed, 37 passed** 확인
 
-**다음 단계:** [RED 커밋 배치 계획](#red-커밋-배치-계획-dual-track-full-red)에 따라 **R1 GREEN**부터 순차 구현.
+**다음 단계:** REFACTOR 또는 GUI Boundary layer (`src/boundary/screen/`) — 계약 불변 유지.
 
 ---
 
 ## RED 단계 To-Do 리스트
+
+### Golden Master 회귀 안전장치
+
+Refactoring 시작 전 구축.  
+GREEN 완료 후 즉시 적용.
+
+#### 기준 파일 생성
+- [x] GM-01: `golden_master_expected.txt` 생성
+- [x] GM-02: 정상/역순/오류 시나리오 추가
+- [x] GM-03: `git add tests/golden_master_expected.txt`
+
+#### 테스트 코드
+- [x] GM-04: `test_golden_master_magic_square` 작성
+- [x] GM-05: approve 패턴 적용
+- [x] GM-06: Golden Master 테스트 PASS 확인
+
+#### 회귀 보호
+- [x] GM-07: row-major 규칙 보호
+- [x] GM-08: 1-index 출력 보호
+- [x] GM-09: reverse 조합 fallback 보호
+- [x] GM-10: Error Contract 보호
 
 <!-- GitHub Task List: 저장소 README를 GitHub에서 열면 체크박스를 클릭해 [x]로 바꿀 수 있습니다. -->
 
@@ -297,11 +318,17 @@ pytest tests/boundary/ tests/entity/ -q
 | TDD 시작 준비 | [`Report/08.MagicSquare_TDD_Startup_ToDo_README_Report.md`](Report/08.MagicSquare_TDD_Startup_ToDo_README_Report.md) | To-Do List·README 준비 보고서 |
 | AC-FR-01-01 RED→GREEN | [`Report/09.MagicSquare_AC_FR_01_01_RED_GREEN_Report.md`](Report/09.MagicSquare_AC_FR_01_01_RED_GREEN_Report.md) | SIZE 검증 테스트·구현·결함 보고서 |
 | Dual-Track RED Skeleton | [`Report/10.MagicSquare_DualTrack_RED_Design_And_Skeleton_Report.md`](Report/10.MagicSquare_DualTrack_RED_Design_And_Skeleton_Report.md) | RED 설계표·스켈레톤 24건·Prompt 통합 |
+| Dual-Track Full GREEN R1~R8 | [`Report/12.MagicSquare_DualTrack_Full_GREEN_R1_R8_Report.md`](Report/12.MagicSquare_DualTrack_Full_GREEN_R1_R8_Report.md) | R1~R8 GREEN·PRD v1.1·coverage gate |
+| Golden Master GM-1~GM-3 | [`Report/13.MagicSquare_Golden_Master_GM1_GM3_Report.md`](Report/13.MagicSquare_Golden_Master_GM1_GM3_Report.md) | Golden Master baseline·approve·회귀 보호 |
+| AC-FR-01-01 단일 GREEN 검증 | [`Report/11.MagicSquare_AC_FR_01_01_Single_Test_GREEN_Verification_Report.md`](Report/11.MagicSquare_AC_FR_01_01_Single_Test_GREEN_Verification_Report.md) | 단일 pytest GREEN 검증 |
 | 결함 목록 | [`docs/defect_list.md`](docs/defect_list.md) | DEF-001~005 (Resolved) |
 | Cursor Rules | [`.cursor/rules/`](.cursor/rules/) | Quality Gates, ECB, TDD, forbidden |
 | Transcript (시작 준비) | [`Prompt/08.MagicSquare_TDD_Startup_Transcript.md`](Prompt/08.MagicSquare_TDD_Startup_Transcript.md) | TDD 시작 준비 세션 기록 |
 | Transcript (AC-FR-01-01) | [`Prompt/09.MagicSquare_AC_FR_01_01_Transcript.md`](Prompt/09.MagicSquare_AC_FR_01_01_Transcript.md) | AC-FR-01-01 RED→GREEN 세션 기록 |
 | Transcript (Dual-Track RED) | [`Prompt/10.MagicSquare_DualTrack_RED_Design_And_Skeleton_Transcript.md`](Prompt/10.MagicSquare_DualTrack_RED_Design_And_Skeleton_Transcript.md) | RED 설계·스켈레톤·Prompt 통합 세션 |
+| Transcript (Full GREEN R1~R8) | [`Prompt/12.MagicSquare_DualTrack_Full_GREEN_R1_R8_Transcript.md`](Prompt/12.MagicSquare_DualTrack_Full_GREEN_R1_R8_Transcript.md) | R1~R8 GREEN·PRD v1.1 세션 |
+| Transcript (Golden Master GM-1~GM-3) | [`Prompt/13.MagicSquare_Golden_Master_GM1_GM3_Transcript.md`](Prompt/13.MagicSquare_Golden_Master_GM1_GM3_Transcript.md) | Golden Master baseline·테스트·README 세션 |
+| Transcript (AC-FR-01-01 단일 GREEN) | [`Prompt/11.MagicSquare_AC_FR_01_01_Single_Test_GREEN_Transcript.md`](Prompt/11.MagicSquare_AC_FR_01_01_Single_Test_GREEN_Transcript.md) | 단일 pytest GREEN 검증 세션 |
 
 ### 문서 간 관계
 
@@ -323,36 +350,38 @@ src/ + tests/  ←── RED → GREEN → REFACTOR
 
 | 항목 | 상태 |
 |---|---|
-| PRD | `docs/PRD_MagicSquare.md` v1.0 Draft — Implementation-Ready |
+| PRD | `docs/PRD_MagicSquare.md` v1.1 — DN-01~DN-03 resolved |
 | 개발 To-Do List | Turn 1 작성 완료 — **파일 미저장** (선택: `docs/TDD_Development_ToDo_List.md`) |
-| MagicSquare 구현 | **진행 중** — R0 SIZE GREEN; R1~R6 GREEN 대기 |
-| MagicSquare 테스트 | **RED 완료** — 62 collected (R0 GREEN 30 + Full RED 25 failed + sample 7) |
+| MagicSquare 구현 | **R0~R6 GREEN 완료** — Boundary FR-01 + Entity FR-02~05 + Control 통합 |
+| MagicSquare 테스트 | **62/62 PASS** — Dual-Track Full GREEN |
 | `docs/defect_list.md` | DEF-001~005 기록, Open 0건 |
-| `pyproject.toml` | **미작성** — GREEN 단계 coverage gate 추가 예정 |
-| 현재 단계 | **RED 완료 → GREEN 시작 (R1: U-IN-04~05 blank count)** |
+| `pyproject.toml` | **작성 완료** — pytest-cov gate (≥80%) |
+| 현재 단계 | **R8 완료** — DN-01~03 확정, PRD v1.1 |
 
-### 권장 GREEN 순서
+### GREEN 순서 (완료)
 
-1. **R1 GREEN** — `BoundaryValidator` ZERO COUNT 분기 (`U-IN-04~05`)
-2. **R2 GREEN** — RANGE 분기 (`U-IN-06~07`)
-3. **R3 GREEN** — DUPLICATE 분기 (`U-IN-08`)
-4. **R4 GREEN** — Entity FR-02~04 (`BlankFinder`, `MissingNumberFinder`, `MagicSquareValidator`)
-5. **R5 GREEN** — Entity FR-05 (`TwoCellSolver`)
-6. **R6 GREEN** — U-OUT + U-FLOW-02c/d 통합
-7. **`pyproject.toml`** — pytest-cov gate 설정
-8. **DN-01~03** 확정 후 PRD v1.1 개정
+1. ~~**R1 GREEN** — `BoundaryValidator` ZERO COUNT 분기 (`U-IN-04~05`)~~ ✅
+2. ~~**R2 GREEN** — RANGE 분기 (`U-IN-06~07`)~~ ✅
+3. ~~**R3 GREEN** — DUPLICATE 분기 (`U-IN-08`)~~ ✅
+4. ~~**R4 GREEN** — Entity FR-02~04~~ ✅
+5. ~~**R5 GREEN** — Entity FR-05 (`TwoCellSolver`)~~ ✅
+6. ~~**R6 GREEN** — U-OUT + U-FLOW-02c/d 통합~~ ✅
+7. ~~**`pyproject.toml`** — pytest-cov gate 설정~~ ✅
+8. ~~**DN-01~03** 확정 후 PRD v1.1 개정~~ ✅
 
 ### Open Questions (PRD §22)
 
 | ID | Topic | 현재 기준 |
 |---|---|---|
-| DN-01 | 성공 응답 envelope | bare `int[6]` |
-| DN-02 | Control Layer 필수 여부 | To-Do에 Control Integration 포함, README는 Scenario 중심 |
-| DN-03 | Both-fail fixture | G3 placeholder in `tests/conftest.py` — GREEN 시 검증·확정 |
+| DN-01 | 성공 응답 envelope | **확정:** bare `int[6]` |
+| DN-02 | Control Layer 필수 여부 | **확정:** `SolveUseCase` 필수 |
+| DN-03 | Both-fail fixture | **확정:** G3 in `tests/conftest.py` |
+| DN-04 | Boundary coverage vs pass rate | pass 100% + coverage ≥85% (gate ≥80% global) |
+| DN-05 | Report/4 파일명 | Report/06 사용 |
 
 ---
 
 ## 한 줄 결론
 
 이 프로젝트의 본질은 **정답 1개 산출**이 아니라, **불변식과 계약으로 설명 가능한 코드**를 Dual-Track TDD로 만드는 것이다.  
-**RED 단계 완료** — 다음: **R1 GREEN** (`BoundaryValidator` blank count 분기 최소 구현).
+**R0~R8 GREEN 완료** — Dual-Track 62 tests PASS, coverage gate ≥80%, PRD v1.1.

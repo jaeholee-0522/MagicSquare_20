@@ -1,0 +1,47 @@
+[project]
+name = "magicsquare"
+version = "0.1.0"
+description = "4x4 Magic Square Dual-Track TDD practice (ECB architecture)"
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic>=2.0",
+]
+
+[project.optional-dependencies]
+gui = [
+    "PyQt6>=6.0",
+]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=4.0",
+    "pytest-mock>=3.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+markers = [
+    "golden_master: GM-2 Golden Master approval regression tests",
+]
+addopts = [
+    "-v",
+    "--cov=src",
+    "--cov-report=term-missing",
+    "--cov-report=html:htmlcov",
+    "--cov-fail-under=80",
+]
+
+[tool.coverage.run]
+source = ["src"]
+branch = true
+
+[tool.coverage.report]
+fail_under = 80
+show_missing = true
+precision = 0
+
+[tool.coverage.paths]
+source = [
+    "src/",
+    "*/src/",
+]

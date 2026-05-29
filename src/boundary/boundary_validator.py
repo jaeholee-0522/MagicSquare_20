@@ -5,7 +5,13 @@ from __future__ import annotations
 from typing import Any
 
 from src.boundary.contracts import ValidationErrorResponse
-from src.entity.constants import BLANK_VALUE, GRID_SIZE, REQUIRED_BLANK_COUNT
+from src.entity.constants import (
+    BLANK_VALUE,
+    GRID_SIZE,
+    MAX_VALUE,
+    MIN_VALUE,
+    REQUIRED_BLANK_COUNT,
+)
 
 
 class BoundaryValidator:
@@ -25,6 +31,8 @@ class BoundaryValidator:
         """
         if self._is_size_invalid(grid):
             return ValidationErrorResponse.invalid_size()
+        if self._is_range_invalid(grid):
+            return ValidationErrorResponse.invalid_range()
         if self._is_blank_count_invalid(grid):
             return ValidationErrorResponse.invalid_blank_count()
         return None
@@ -42,6 +50,16 @@ class BoundaryValidator:
                 return True
             if len(row) != GRID_SIZE:
                 return True
+        return False
+
+    def _is_range_invalid(self, grid: list) -> bool:
+        """Return True when any cell is outside {0} union [MIN_VALUE, MAX_VALUE]."""
+        for row in grid:
+            for value in row:
+                if value == BLANK_VALUE:
+                    continue
+                if value < MIN_VALUE or value > MAX_VALUE:
+                    return True
         return False
 
     def _is_blank_count_invalid(self, grid: list) -> bool:

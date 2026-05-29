@@ -9,7 +9,7 @@ import pytest
 from src.boundary.boundary_validator import BoundaryValidator
 from src.boundary.contracts import INVALID_SIZE_CODE, INVALID_SIZE_MESSAGE
 from src.control.solve_use_case import SolveUseCase
-from src.entity.domain_resolver import DomainResolver
+from src.entity.domain_resolver import DomainResolver, DomainResolverImpl
 
 # PRD §12.1 SIZE contract; anchor message per test_plan / README (maps to PRD §13 UI-ERR-001).
 PRD_SECTION = "§8.1"
@@ -67,4 +67,15 @@ def solve_use_case(
     return SolveUseCase(
         validator=boundary_validator,
         domain_resolver=domain_resolver_mock,
+    )
+
+
+@pytest.fixture
+def integrated_solve_use_case(
+    boundary_validator: BoundaryValidator,
+) -> SolveUseCase:
+    """Control orchestrator with real Domain pipeline for success-path tests."""
+    return SolveUseCase(
+        validator=boundary_validator,
+        domain_resolver=DomainResolverImpl(),
     )

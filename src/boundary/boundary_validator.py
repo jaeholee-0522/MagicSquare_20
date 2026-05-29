@@ -5,26 +5,28 @@ from __future__ import annotations
 from typing import Any
 
 from src.boundary.contracts import ValidationErrorResponse
-from src.entity.constants import GRID_SIZE
+from src.entity.constants import BLANK_VALUE, GRID_SIZE, REQUIRED_BLANK_COUNT
 
 
 class BoundaryValidator:
     """Validates input contract before Domain invocation (FR-01).
 
-    Validation order: SIZE → RANGE → ZERO COUNT → DUPLICATE (SIZE only in this slice).
+    Validation order: SIZE → RANGE → ZERO COUNT → DUPLICATE.
     """
 
     def validate(self, grid: Any) -> ValidationErrorResponse | None:
-        """Return SIZE failure response or None when SIZE contract passes.
+        """Return validation failure response or None when FR-01 contract passes.
 
         Args:
             grid: Candidate 4x4 int matrix.
 
         Returns:
-            ValidationErrorResponse when SIZE is violated; None otherwise.
+            ValidationErrorResponse when a contract is violated; None otherwise.
         """
         if self._is_size_invalid(grid):
             return ValidationErrorResponse.invalid_size()
+        if self._is_blank_count_invalid(grid):
+            return ValidationErrorResponse.invalid_blank_count()
         return None
 
     def _is_size_invalid(self, grid: Any) -> bool:
@@ -41,3 +43,12 @@ class BoundaryValidator:
             if len(row) != GRID_SIZE:
                 return True
         return False
+
+    def _is_blank_count_invalid(self, grid: list) -> bool:
+        """Return True when zero-cell count is not exactly REQUIRED_BLANK_COUNT."""
+        blank_count = 0
+        for row in grid:
+            for value in row:
+                if value == BLANK_VALUE:
+                    blank_count += 1
+        return blank_count != REQUIRED_BLANK_COUNT

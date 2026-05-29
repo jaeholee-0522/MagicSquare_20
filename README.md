@@ -1,6 +1,6 @@
 # Magic Square 4×4 — TDD Practice
 
-**바로가기:** [RED 단계 To-Do 리스트](#red-단계-to-do-리스트) · [REFACTOR 단계 To-Do](#refactor-단계-to-do-리스트) · [RED 커밋 배치 계획](#red-커밋-배치-계획-dual-track-full-red) · [RED Start Checklist](#7-red-start-checklist)
+**바로가기:** [RED 단계 To-Do 리스트](#red-단계-to-do-리스트) · [REFACTOR 단계 To-Do](#refactor-단계-to-do-리스트) · [QA 코드 스멜 (Control/Boundary)](#p2--qa-코드-스멜-controlboundary) · [RED 커밋 배치 계획](#red-커밋-배치-계획-dual-track-full-red) · [RED Start Checklist](#7-red-start-checklist)
 
 ## 1. Project Start Declaration
 
@@ -249,6 +249,47 @@ GREEN 완료 후 즉시 적용.
 - [ ] RF-P2-03: `boundary/contracts.py` re-export → import 경로 일원화 후 deprecate
 - [ ] RF-P2-04: `entity/user.py` 스캐폴드 정리 (Magic Square 범위 외)
 
+#### P2 — QA 코드 스멜 (Control/Boundary)
+
+QA 엔지니어 점검 기준: `src/control/*`, `src/boundary/*` (Screen UI 포함).  
+참조 결합만 기록: 구 `input_validator.py` → `boundary_validator.py`, 구 `two_cell_solver.py` → `entity/solver.py` `TwoCellSolver`.
+
+##### P2-H — High (계약 E001~E005 · int[6] 회귀 위험)
+
+- [ ] RF-P2-H01: **`ResultFormatter` 역할** — `SolvePresenter` 성공 분기에서 int[6] length=6·coords∈[1,4] 검증 (U-OUT Boundary enforcement; PRD §12.2)
+- [ ] RF-P2-H02: **`GridInputWidget.set_grid`** — `GRID_SIZE` 검증 추가 (비4×4 입력 시 IndexError 방지)
+- [ ] RF-P2-H03: **`GridInputWidget.apply_solution` / `highlight_placements`** — placement 스키마 가드 (malformed int[6] → UI 오류 표시)
+- [ ] RF-P2-H04: **`SolveUseCase.execute`** — `grid: Any` → `list[list[int]]` (FR-01 입력 계약 타입 복원)
+
+##### P2-M — Medium (DRY · SSOT · 가독성)
+
+- [ ] RF-P2-M01: int[6] `[r1,c1,n1,r2,c2,n2]` 언팩·1-index 변환 단일 helper (`SOLUTION_LENGTH=6` SSOT 공유)
+- [ ] RF-P2-M02: `BoundaryValidator` — `_is_range_invalid` / `_is_blank_count_invalid` / `_is_duplicate_invalid` 단일 순회 통합
+- [ ] RF-P2-M03: Screen→`bootstrap` 직접 import 제거 — `app.py` 단일 composition root, `MainWindow(presenter=…)` 필수 주입
+- [ ] RF-P2-M04: `main_window` 힌트 `"1–16"` → `MIN_VALUE`/`MAX_VALUE` SSOT 사용
+- [ ] RF-P2-M05: `main_window._build_ui` / `_show_error`, `grid_input_widget._build_ui` 분리 (본문 ≤20줄)
+- [ ] RF-P2-M06: `DomainResolver` Protocol → `control/ports.py` 이동 (Control inversion 대칭)
+- [ ] RF-P2-M07: `validation_errors` 메시지 `"4x4"`, `"2"`, `"1-16"` ↔ `grid_constants` 문자열 SSOT 연동
+
+##### P2-L — Low (스타일 · Dead code)
+
+- [ ] RF-P2-L01: 미사용 `_ERROR_STYLE` / `highlight_placements(is_error=True)` 제거 또는 domain-error 하이라이트 연결
+- [ ] RF-P2-L02: `SolveResult` union type alias 명명 개선 (Result 객체와 혼동 방지)
+
+##### QA 코드 스멜 요약표
+
+| 파일 | 줄 | 스멜 | 우선순위 |
+|---|---|---|---|
+| `boundary/screen/solve_presenter.py` | 71–74 | int[6] 검증 없이 SuccessOutcome 통과 | **High** |
+| `boundary/screen/grid_input_widget.py` | 83–88, 117–126 | set_grid/apply_solution 스키마 미검증 | **High** |
+| `boundary/screen/main_window.py` | 135–136 | int[6] 3중 소비·검증 없음 | **High** |
+| `control/solve_use_case.py` | 23, 32 | `execute(grid: Any)` 타입 소실 | **High** |
+| `boundary/boundary_validator.py` | 57–86 | full-grid 순회 3회 중복 | Medium |
+| `boundary/screen/main_window.py` | 47–100, 148–177 | `_build_ui`·`_show_error` 장함수 | Medium |
+| `entity/solver.py` (참조) | 10, 65–72 | `SOLUTION_LENGTH` 미사용·int[6] 형식 Boundary 중복 | Medium |
+
+> **점검 제외(해당 없음):** 예외 제어 흐름 오용, 불필요한 주석, 긴 매개변수 목록(>3) — 대상 파일 전체.
+
 #### 레이어별 REFACTOR 준비도
 
 | 레이어 | REFACTOR | 비고 |
@@ -256,7 +297,7 @@ GREEN 완료 후 즉시 적용.
 | `src/entity/*` | **가능** | `test_d_*` + Golden Master |
 | `src/control/*` | **가능** | boundary/Golden Master 간접 보호; P1-01 권장 |
 | `src/boundary/*` (core) | **가능** | `test_u_*`, `test_ac_fr_*`, presenter |
-| `src/boundary/screen/*` | **P1 후** | smoke만 있음; P1-05 전 동작 테스트 부족 |
+| `src/boundary/screen/*` | **P2-H 후** | smoke만 있음; P2-H01~H03(int[6]·UI 가드) 선행 권장 |
 
 #### REFACTOR 회귀 명령
 
@@ -436,4 +477,4 @@ src/ + tests/  ←── RED → GREEN → REFACTOR
 ## 한 줄 결론
 
 이 프로젝트의 본질은 **정답 1개 산출**이 아니라, **불변식과 계약으로 설명 가능한 코드**를 Dual-Track TDD로 만드는 것이다.  
-**R0~R8 GREEN 완료** — Dual-Track PASS, Golden Master 회귀 안전장치, REFACTOR P0(ECB·GUI) 적용. 다음: P1 테스트 보강 후 구조 REFACTOR.
+**R0~R8 GREEN 완료** — Dual-Track PASS, Golden Master 회귀 안전장치, REFACTOR P0(ECB·GUI) 적용. 다음: P1 테스트 보강 → **P2-H QA High**(int[6]·UI 가드) → 구조 REFACTOR.

@@ -1,6 +1,6 @@
 # Magic Square 4×4 — TDD Practice
 
-**바로가기:** [RED 단계 To-Do 리스트](#red-단계-to-do-리스트) · [REFACTOR 단계 To-Do](#refactor-단계-to-do-리스트) · [QA 코드 스멜 (Control/Boundary)](#p2--qa-코드-스멜-controlboundary) · [RED 커밋 배치 계획](#red-커밋-배치-계획-dual-track-full-red) · [RED Start Checklist](#7-red-start-checklist)
+**바로가기:** [RED 단계 To-Do 리스트](#red-단계-to-do-리스트) · [REFACTOR 단계 To-Do](#refactor-단계-to-do-리스트) · [ECB 레이어 분리](#ecb-레이어-분리-프롬프트--src-매핑) · [QA 코드 스멜 (Control/Boundary)](#p2--qa-코드-스멜-controlboundary) · [RED 커밋 배치 계획](#red-커밋-배치-계획-dual-track-full-red) · [RED Start Checklist](#7-red-start-checklist)
 
 ## 1. Project Start Declaration
 
@@ -232,6 +232,45 @@ GREEN 완료 후 즉시 적용.
 - [x] RF-P0-07: `tests/test_architecture_imports.py` — ECB import guard
 - [x] RF-P0-08: `tests/boundary/test_solve_presenter.py` — Presenter 5 시나리오
 - [x] RF-P0-09: `tests/boundary/test_gui_smoke.py` — GUI import smoke (PyQt6 optional)
+
+#### ECB 레이어 분리 (프롬프트 ↔ src 매핑)
+
+`.cursorrules` ECB: **Boundary** = E001~E005·int[6]/Error 직렬화 · **Control** = locate→find→solve 오케스트레이션 · **Entity** = VO·Domain Service · **Screen** = 표시·입력·UIBoundary 호출.  
+허용: `boundary→control`, `control→entity` / 금지: `entity→boundary|control`, `control→boundary`, Screen→Control/Entity 직접.
+
+##### 프롬프트 파일 ↔ 실제 경로
+
+| 프롬프트 (학습용) | 실제 경로 | ECB 역할 | 적합 |
+|---|---|---|:---:|
+| `domain.py` | `src/control/solve_use_case.py`, `ports.py` | Control | 적합 |
+| `boundary.py` | `src/boundary/boundary_validator.py`, `contracts.py` | Boundary | 적합 |
+| `ui_boundary.py` | `src/boundary/screen/solve_presenter.py` | Boundary (UI 어댑터) | 부분 |
+| `gui/main_window.py` | `src/boundary/screen/main_window.py` | Screen | 부분 |
+| (구) `input_validator.py` | `boundary_validator.py` | Boundary | — |
+| (구) `two_cell_solver.py` | `entity/solver.py` `TwoCellSolver` | Entity | — |
+
+> `solve_partial_magic_square.py` → **`SolveUseCase`(Control)**. locate/find/solve·Step A/B·int[6] 조립은 **Entity**에 분리됨.
+
+##### ECB P0 — 레이어 위치·Screen 경계 (계약 E001~E007·int[6] 1순위)
+
+- [ ] RF-ECB-P0-01: `entity/domain_resolver.py` → `src/control/` (`DomainResolverImpl` + Protocol → `ports.py`)
+- [ ] RF-ECB-P0-02: `main_window` E006/E007 — 오류 타이틀·색·`QMessageBox` → `solve_presenter` 또는 Boundary UI mapper
+- [ ] RF-ECB-P0-03: `main_window` — `bootstrap`/`SAMPLE_PUZZLES` 제거, `app.py` 단일 composition·Presenter 주입만
+
+##### ECB P1 — 테스트 갭 연동 (REFACTOR 전 안전망)
+
+| ECB 항목 | 연결 README | 내용 |
+|---|---|---|
+| RF-ECB-P1-01 | RF-P1-01 | Control `SolveUseCase` mock 단위 테스트 |
+| RF-ECB-P1-02 | RF-P1-02 | Boundary 비정수 셀 → `INVALID_RANGE` (TypeError 방지) |
+| RF-ECB-P1-03 | RF-P1-04 | Golden Master `INVALID_SIZE` / `INVALID_RANGE` |
+| RF-ECB-P1-04 | RF-P1-03 | 입력 grid 불변성 (NFR-04) |
+| RF-ECB-P1-05 | RF-P1-05 | GUI headless 동작 (Solve/Clear/샘플/오류) |
+| RF-ECB-P1-06 | RF-P2-H01~H03 | int[6]·`GridInputWidget` 스키마 가드 (U-OUT·UI) |
+
+**REFACTOR 1순위 (한 줄):** E001~E007·int[6] 유지 — `DomainResolver` Control 이전 + Screen↔UIBoundary(`solve_presenter`) 경계 정리.
+
+**테스트 없이 ECB 분리 금지 (한 줄):** refactor_phase는 동작·coverage 불변 전제인데, Screen·Control 경계는 P1/ECB-P1 테스트 없이 구조만 바꾸면 회귀를 pytest가 잡지 못함.
 
 #### P1 — 테스트 보강 (REFACTOR 안전망)
 
